@@ -35,5 +35,13 @@
     "sequelize-cli": "^6.5.2",
     "supertest": "^6.3.2"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adityadahake24/WD201-L7.git"
+  },
+  "bugs": {
+    "url": "https://github.com/adityadahake24/WD201-L7/issues"
+  },
+  "homepage": "https://github.com/adityadahake24/WD201-L7#readme",
   "description": ""
 }
