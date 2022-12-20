@@ -74,7 +74,10 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
-    
+    deletetodo() {
+      return this.remove(id);
+    }
+
     markAsCompleted() {
       return this.update({ completed: true});
     }
