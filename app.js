@@ -99,13 +99,18 @@ app.put("/todos/:id", async function (request, response) {
 });
 
 app.delete("/todos/:id", async function (request, response) {
-  try {
-    await Todo.remove(request.params.id);
-    return response.json({success:true});
-  } catch (error) {
-    console.log(error);
-    return response.status(422).json(error);
-  }
+  console.log("delete a todo w/ ID:", request.params.id);
+  const todo = await Todo.findByPk(request.params.id);
+  if (todo) {
+    try {
+      const deletedTodo = await todo.deleteTodo();
+
+      return response.send(deletedTodo ? true : false);
+    } catch (error) {
+      console.log(error);
+      return response.status(422).json(error);
+    }
+  } else return response.send(false);
 });
 
 module.exports = app;

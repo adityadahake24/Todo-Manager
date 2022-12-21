@@ -66,16 +66,12 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
-    static async remove(id) {
+    deleteTodo() {
       return this.destroy({
         where: {
-          id,
+          id: this.id,
         },
       });
-    }
-
-    deletetodo() {
-      return this.remove(id); 
     }
 
     markAsCompleted() {

@@ -1,56 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="csrf-token" content="<%= csrfToken %>" />
-    <title>
-    Aditya's-Todo-Manager
-    </title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/css/styles.css" />
-    <script>
-      var token = document
-        .querySelector('meta[name="csrf-token"]')
-        .getAttribute("content");
-
-        const updateTodo = (id) => {
-        const completed = document.querySelector(`#checkbox-${id}`).checked
-        console.log(completed);
-
-        function updateTodo(id) {
-        fetch('/todos/${id}/markAsCompleted', {
-          method: "put",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            completed: true,
-            "_csrf":token
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <meta name="csrf-token" content="<%= csrfToken %>">
+        <link href="./css/style.css" rel="stylesheet">
+        <title>Aditya's-Todo-Manager</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="./css/style.css" rel="stylesheet">
+        <script>
+          const token = document.querySelector("meta[name='csrf-token']").getAttribute("content")
+          const updateTodo = (id) => {
+          const completed= document.querySelector(`#checkbox-${id}`).checked
+          fetch(`/todos/${id}`, {
+            method: "PUT",
+            headers: {
+            "Content-Type": "application/json",
+            },
+            body : JSON.stringify({
+            _csrf : token,
+            completed : true,
+            })
           })
-        })
-            .then((res) => {
+          .then((res) => {
             if (res.ok) {
-              window.location.reload();  
+              window.location.reload();
             }
           })
-          .catch((err) => console.error(err));
-      }
-      function deleteTodo(id) {
-        fetch('/todos/${id}', {
-          method: "delete",
-          headers: { "Content-Type": "application/json"},
-          body: JSON.stringify({
-            "_csrf":token
+          .catch(err);{
+          console.log(err);
+          }
+        };
+        const deleteTodo = (id) => {
+            fetch(`/todos/${id}`,{
+            method: "delete",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({
+              "_csrf":token
           })
         })
-        .then((res) => {
+         .then((res) => {
           if (res.ok) {
             window.location.reload();
           }
-        })
-        .catch((err) => console.error(err));
+         })
+         .catch((err) => console.erroe(err));
       }
-    }
-    </script>
+        </script>
   </head>
   <body>
     <div class="grid grid-cols-6">
@@ -84,13 +81,11 @@
             </div>
           </div>
         </form>
+        <%- include('todos.ejs', {title: "Overdue" , data: overdue}) %>
+        <%- include('todos.ejs', {title: "Due Today" , data: dueToday}) %>
+        <%- include('todos.ejs', {title: "Due Later" , data: dueLater}) %>
+        <%- include('todos.ejs', {title: "Completed items" , data: completed}) %>
       </div>
-    </div>
-    <div class="grid grid-cols-6 col-start-3 col-span-2">
-      <%- include('todos.ejs', {title: "Overdue" , data: overdue}) %>
-      <%- include('todos.ejs', {title: "Due Today" , data: dueToday}) %>
-      <%- include('todos.ejs', {title: "Due Later" , data: dueLater}) %>
-      <%- include('todos.ejs', {title: "Completed items" , data: completed}) %>
     </div>
   </body>
 </html>
