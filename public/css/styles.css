@@ -3,6 +3,6 @@ body {
     background: #ffffff;
   }
   .Todo-Item:hover .trash-icon {
-    display: block;
+    display: block !important;
   }
   
