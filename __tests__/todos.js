@@ -10,7 +10,6 @@ function extractCsrfToken(res) {
   return $("[name=_csrf]").val();
 }
 
-
 describe("Todo test suite ", function () {
   beforeAll(async () => {
     await db.sequelize.sync({ force: true });
@@ -54,7 +53,7 @@ describe("Todo test suite ", function () {
     res = await agent.get("/");
     csrfToken = extractCsrfToken(res);
 
-    const response = await agent.put(`todos/${latestTodo.id}`).send({
+    const response = await agent.put(`/todos/${latestTodo.id}`).send({
       _csrf: csrfToken,
       completed: status,
     });
@@ -84,7 +83,7 @@ describe("Todo test suite ", function () {
     res = await agent.get("/");
     csrfToken = extractCsrfToken(res);
 
-    const response = await agent.put(`todos/${latestTodo.id}`).send({
+    const response = await agent.put(`/todos/${latestTodo.id}`).send({
       _csrf: csrfToken,
     });
     const parsedUpdateResponse = JSON.parse(response.text);

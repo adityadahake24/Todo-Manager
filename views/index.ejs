@@ -15,14 +15,15 @@
         .getAttribute("content");
 
         const updateTodo = (id) => {
-          const completed = document.querySelector(`#checkbox-${id}`).checked
-          console.log(completed);
+        const completed = document.querySelector(`#checkbox-${id}`).checked
+        console.log(completed);
 
         function updateTodo(id) {
         fetch('/todos/${id}/markAsCompleted', {
           method: "put",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            completed: true,
             "_csrf":token
           })
         })

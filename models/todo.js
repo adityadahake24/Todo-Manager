@@ -75,15 +75,15 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     deletetodo() {
-      return this.remove(id);
+      return this.remove(id); 
     }
 
     markAsCompleted() {
       return this.update({ completed: true});
     }
 
-    setCompletionStatus(completed) {
-      return this.update({ completed });
+    setCompletionStatus() {
+      return this.update({ completed: true});
     }
   }
 
