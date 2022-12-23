@@ -78,7 +78,13 @@ module.exports = (sequelize, DataTypes) => {
       return this.update({ completed: true});
     }
     
-    
+    static async completedItems() {
+      return await Todo.findAll({
+        where: {
+          completed: true,
+        },
+      });
+    }
 
     setCompletionStatus() {
       return this.update({ completed: true});
