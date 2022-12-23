@@ -62,7 +62,6 @@ module.exports = (sequelize, DataTypes) => {
         where: {
           completed: true,
         },
-        order: [["id","ASC"]],
       });
     }
 
@@ -73,10 +72,6 @@ module.exports = (sequelize, DataTypes) => {
         },
       });
     }
-
-    markAsCompleted() {
-      return this.update({ completed: true});
-    }
     
     static async completedItems() {
       return await Todo.findAll({
@@ -86,8 +81,8 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
-    setCompletionStatus() {
-      return this.update({ completed: true});
+    setCompletionStatus(completed) {
+      return this.update({ completed: !this.completed});
     }
   }
 
