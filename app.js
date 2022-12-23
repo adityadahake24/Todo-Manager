@@ -20,7 +20,6 @@ app.use(express.static(path.join( __dirname,'public')))
 
 
 app.get("/", async (request, response) => {
-  const allTodos = await Todo.getTodos();
   const overdue = await Todo.overdue();
   const dueToday = await Todo.dueToday();
   const dueLater = await Todo.dueLater();

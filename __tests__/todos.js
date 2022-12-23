@@ -34,33 +34,44 @@ describe("Todo test suite ", function () {
     expect(response.statusCode).toBe(302);
   });
 
-  test("Marks a todo with the given ID as complete", async () => {
+  test("Update a todo with given ID as complete / incomplete", async () => {
     let res = await agent.get("/");
     let csrfToken = extractCsrfToken(res);
     await agent.post("/todos").send({
-      title: "Pay OTT Bills",
+      title: "Pay OTT Bill",
       dueDate: new Date().toISOString(),
       completed: false,
       _csrf: csrfToken,
     });
-    const gropuedTodosResponse = await agent
+    await agent.post("/todos").send({
+      title: "Pay OTT Bill",
+      dueDate: new Date().toISOString(),
+      completed: true,
+      _csrf: csrfToken,
+    });
+
+    const groupedTodosResponse = await agent
       .get("/")
       .set("Accept", "application/json");
-    const parsedGroupedResponse = JSON.parse(gropuedTodosResponse.text);
+    const parsedGroupedResponse = JSON.parse(groupedTodosResponse.text);
     const dueTodayCount = parsedGroupedResponse.dueToday.length;
     const latestTodo = parsedGroupedResponse.dueToday[dueTodayCount - 1];
-    const status = latestTodo.completed ? false : true;
+
     res = await agent.get("/");
     csrfToken = extractCsrfToken(res);
 
-    const response = await agent.put(`/todos/${latestTodo.id}`).send({
-      _csrf: csrfToken,
-      completed: status,
-    });
-    const parsedUpdateResponse = JSON.parse(response.text);
-    expect(parsedUpdateResponse.completed).toBe(true);
+    const markCompleteResponse = await agent
+      .put(`/todos/${latestTodo.id}`)
+      .send({
+        _csrf: csrfToken,
+      });
+
+    const parsedUpdateResponse = JSON.parse(markCompleteResponse.text);
+    parsedUpdateResponse.completed
+      ? expect(parsedUpdateResponse.completed).toBe(true)
+      : expect(parsedUpdateResponse.completed).toBe(false);
   });
-  
+
 
    test("Deletes a todo with the given ID if it exists and sends a boolean response", async () => {
      // FILL IN YOUR CODE HERE
