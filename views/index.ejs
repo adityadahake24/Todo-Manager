@@ -18,6 +18,7 @@
             "Content-Type": "application/json",
             },
             body : JSON.stringify({
+            completed: completed,
             _csrf : token,
             })
           })
@@ -30,6 +31,7 @@
           console.log(err);
           }
         };
+
         const deleteTodo = (id) => {
             fetch(`/todos/${id}`,{
             method: "delete",
@@ -68,6 +70,7 @@
                 type="date"
                 name="dueDate"
                 class="border border-gray-300 rounded text-gray-900 w-full p-2 text-sm leading-4"
+                required
               />
             </div>
             <div class="flex-none">
