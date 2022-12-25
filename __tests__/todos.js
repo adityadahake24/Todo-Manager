@@ -98,6 +98,6 @@ describe("Todo test suite ", function () {
       _csrf: csrfToken,
     });
     const parsedUpdateResponse = JSON.parse(response.text);
-    expect(parsedUpdateResponse.completed).toBe(true);
+    expect(parsedUpdateResponse.completed).toBe(false);
    });
 });
