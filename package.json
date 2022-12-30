@@ -15,7 +15,7 @@
       "prettier --write ."
     ]
   },
-  "author": "Jane Doe <jane.doe@example.com>",
+  "author": "Aditya Dahake",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.0",

@@ -20,8 +20,12 @@ module.exports = (sequelize, DataTypes) => {
       return this.create({ title: title, dueDate: dueDate, completed: false, userId });
     }
 
-    static getTodos() {
-      return this.findAll();
+    static getTodos(userId) {
+      return this.findAll({
+          where: {
+            userId,
+          },
+        });
     }
     
     static async overdue(userId) {
@@ -96,9 +100,25 @@ module.exports = (sequelize, DataTypes) => {
 
   Todo.init(
     {
-      title: DataTypes.STRING,
-      dueDate: DataTypes.DATEONLY,
-      completed: DataTypes.BOOLEAN,
+      title: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notNull: true,
+          len: 5,
+        },
+      },
+      dueDate:  {
+        type: DataTypes.DATEONLY,
+        allowNull: false,
+        validate: {
+          notNull: true,
+        },
+      },
+      completed: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
     },
     {
       sequelize,

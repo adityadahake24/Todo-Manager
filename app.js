@@ -32,8 +32,25 @@ app.use(session({
   }
 }));
 
+app.use(function (request, response, next) {
+  response.locals.messages = request.flash();
+  next();
+});
+
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.post(
+  "/session",
+  passport.authenticate("local", {
+    failureRedirect: "/login",
+    failureFlash: true,
+  }),
+  function (request, response) {
+    console.log(request.user);
+    response.redirect("/todo");
+  }
+);
 
 passport.use(
   new LocalStrategy(
@@ -52,7 +69,7 @@ passport.use(
           }
         })
         .catch((error) => {
-          return done(error);
+          return done(null, false, { message: "Invalid Email-ID" });
         });
     }
   )
@@ -84,6 +101,7 @@ app.get("/", async (request, response) => {
 });
 
 app.get("/todo", connectEnsureLogin.ensureLoggedIn(),async (request, response) => {
+  try{
   const loggedInUser = request.user.id;
   const overdue = await Todo.overdue(loggedInUser);
   const dueToday = await Todo.dueToday(loggedInUser);
@@ -105,7 +123,11 @@ app.get("/todo", connectEnsureLogin.ensureLoggedIn(),async (request, response) =
       dueLater,
       completed,
     });
-  }
+  } 
+  }catch (err) {
+    console.log(err);
+    return response.status(422).json(err);
+    }
 });
 
 app.get("/signup", (request, response) => {
@@ -139,7 +161,22 @@ app.get("/todos/:id", async function (request, response) {
 });
 
 app.post("/users", async (request,response) => {
-  
+  if (!request.body.firstName) {
+    request.flash("error", "Enter your first name");
+    return response.redirect("/signup");
+  }
+  if (!request.body.email) {
+    request.flash("error", "Enter email ID");
+    return response.redirect("/signup");
+  }
+  if (!request.body.password) {
+    request.flash("error", "Enter your password");
+    return response.redirect("/signup");
+  }
+  if (request.body.password < 8) {
+    request.flash("error", "Minimum 8 characters required!");
+    return response.redirect("/signup");
+  }
   const hashedPwd = await bcrypt.hash(request.body.password, saltRounds);
   console.log(hashedPwd);
 
@@ -154,9 +191,10 @@ app.post("/users", async (request,response) => {
       if (err) {
         console.log(err);
       }
-      response.redirect("/todos");
+      response.redirect("/todo");
     });
   } catch (error) {
+    request.flash("error", error.message);
     console.log(error);
   }
 });
@@ -180,7 +218,14 @@ app.post("/session", passport.authenticate("local", {failureRedirect:"/login"}),
 })
 
 app.post("/todos", connectEnsureLogin.ensureLoggedIn(), async function (request, response) {
-  console.log("Add new todo", request.body);
+  if (request.body.title.length < 5) {
+    request.flash("error", "Minimum 5 characters required");
+    return response.redirect("/todo");
+  }
+  if (!request.body.dueDate) {
+    request.flash("error", "Due Date is required.");
+    return response.redirect("/todo");
+  }
   try {
     await Todo.addTodo({
       title: request.body.title,

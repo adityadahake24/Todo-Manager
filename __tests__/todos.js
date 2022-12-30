@@ -27,10 +27,15 @@ describe("Todo test suite ", function () {
     server = app.listen(4000, () => {});
     agent = request.agent(server);
   });
-  afterAll(async () => {
+
+afterAll(async () => {
+  try{
       await db.sequelize.close();
       server.close();
-  });
+  } catch (error) {
+    console.log(error);
+  }
+});
 
   test("Sign up", async () => {
     let res = await agent.get("/signup");
@@ -53,6 +58,8 @@ describe("Todo test suite ", function () {
     res = await agent.get("/todo");
     expect(res.statusCode).toBe(302);
   });
+
+ 
 
   test("Creates a todo and responds with json at /todos POST endpoint", async () => {
     const agent = request.agent(server);
