@@ -198,7 +198,7 @@ app.post("/users", async (request,response) => {
   } catch (error) {
     request.flash(
       "error",
-      "This mail already has a linked account, try another mail!"
+      "This mail already has a account, try another mail!"
     );
     return response.redirect("/signup");
   }
@@ -247,8 +247,8 @@ app.post("/todos", connectEnsureLogin.ensureLoggedIn(), async function (request,
 
 app.put("/todos/:id", connectEnsureLogin.ensureLoggedIn(), async function (request, response) {
   console.log("Mark Todo Completed:", request.params.id);
-  const todo = await Todo.findByPk(request.params.id);
   try {
+    const todo = await Todo.findByPk(request.params.id);
     const updatedTodo = await todo.setCompletionStatus(request.body.completed);
     return response.json(updatedTodo);
   } catch (error) {
@@ -259,11 +259,10 @@ app.put("/todos/:id", connectEnsureLogin.ensureLoggedIn(), async function (reque
 
 app.delete("/todos/:id", connectEnsureLogin.ensureLoggedIn(), async function (request, response) {
   console.log("delete a todo w/ ID:", request.params.id);
-  const todo = await Todo.findByPk(request.params.id);
   if (todo) {
     try {
+      const todo = await Todo.findByPk(request.params.id);
       const deletedTodo = await todo.deleteTodo(request.params.id, request.user.id);
-
       return response.send(deletedTodo ? true : false);
     } catch (error) {
       console.log(error);
