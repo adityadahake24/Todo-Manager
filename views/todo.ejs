@@ -56,7 +56,7 @@
     <div class="grid grid-cols-6">
       <div class="col-start-3 col-span-2">
         <%- include('header.ejs') %>
-        <p class="py-2">Welcome to Todo-Manager</p>
+        <p class="text-gray-600 my-1">Hello <%= userName %></p>
         <a href="/signout" class="text-green-600">Signout</a>
         <form action="/todos " method="post">
           <input type="hidden" name="_csrf" value="<%= csrfToken%>" />

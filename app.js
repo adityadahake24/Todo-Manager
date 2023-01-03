@@ -68,7 +68,7 @@ passport.use(
             return done(null, false, { message: "Invalid password" });
           }
         })
-        .catch((error) => {
+        .catch(() => {
           return done(null, false, { message: "Invalid Email-ID" });
         });
     }
@@ -103,12 +103,14 @@ app.get("/", async (request, response) => {
 app.get("/todo", connectEnsureLogin.ensureLoggedIn(),async (request, response) => {
   try{
   const loggedInUser = request.user.id;
+  const userName = request.user.firstName + " " + request.user.lastName;
   const overdue = await Todo.overdue(loggedInUser);
   const dueToday = await Todo.dueToday(loggedInUser);
   const dueLater = await Todo.dueLater(loggedInUser);
   const completed = await Todo.completed(loggedInUser);
   if (request.accepts("html")) {
     response.render('todo', {
+      userName,
       overdue,
       dueToday,
       dueLater,
@@ -194,8 +196,11 @@ app.post("/users", async (request,response) => {
       response.redirect("/todo");
     });
   } catch (error) {
-    request.flash("error", error.message);
-    console.log(error);
+    request.flash(
+      "error",
+      "This mail already has a linked account, try another mail!"
+    );
+    return response.redirect("/signup");
   }
 });
 
