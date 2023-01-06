@@ -1,6 +1,6 @@
 "use strict";
 const { Model } = require("sequelize");
-const {Op} = require("sequelize");
+const { Op } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Todo extends Model {
     /**
@@ -10,24 +10,29 @@ module.exports = (sequelize, DataTypes) => {
      */
     // eslint-disable-next-line no-unused-vars
     static associate(models) {
-      Todo.belongsTo(models.User,{
-        foreignKey: 'userId'
-      })
+      Todo.belongsTo(models.User, {
+        foreignKey: "userId",
+      });
       // define association here
     }
 
     static addTodo({ title, dueDate, userId }) {
-      return this.create({ title: title, dueDate: dueDate, completed: false, userId });
+      return this.create({
+        title: title,
+        dueDate: dueDate,
+        completed: false,
+        userId,
+      });
     }
 
     static getTodos(userId) {
       return this.findAll({
-          where: {
-            userId,
-          },
-        });
+        where: {
+          userId,
+        },
+      });
     }
-    
+
     static async overdue(userId) {
       return this.findAll({
         where: {
@@ -37,7 +42,7 @@ module.exports = (sequelize, DataTypes) => {
           userId,
           completed: false,
         },
-        order: [["id","ASC"]],
+        order: [["id", "ASC"]],
       });
     }
 
@@ -50,7 +55,7 @@ module.exports = (sequelize, DataTypes) => {
           userId,
           completed: false,
         },
-        order: [["id","ASC"]],
+        order: [["id", "ASC"]],
       });
     }
 
@@ -63,7 +68,7 @@ module.exports = (sequelize, DataTypes) => {
           userId,
           completed: false,
         },
-        order: [["id","ASC"]],
+        order: [["id", "ASC"]],
       });
     }
 
@@ -84,17 +89,17 @@ module.exports = (sequelize, DataTypes) => {
         },
       });
     }
-    
+
     static async completedItems() {
       return await Todo.findAll({
         where: {
           completed: true,
         },
-      });                 
+      });
     }
 
     setCompletionStatus(completed) {
-      return this.update({ completed: completed});
+      return this.update({ completed: completed });
     }
   }
 
@@ -108,7 +113,7 @@ module.exports = (sequelize, DataTypes) => {
           len: 5,
         },
       },
-      dueDate:  {
+      dueDate: {
         type: DataTypes.DATEONLY,
         allowNull: false,
         validate: {

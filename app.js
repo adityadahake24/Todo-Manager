@@ -11,26 +11,28 @@ app.set("views", path.join(__dirname, "views"));
 const todo = require("./models/todo");
 const { title } = require("process");
 app.use(bodyParser.json());
-app.use(express.urlencoded({extended: false}));
+app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser("shh! some secret string "));
-app.use(csrf("this_should_be_32_character_long", ["PUT","POST","DELETE"]));
+app.use(csrf("this_should_be_32_character_long", ["PUT", "POST", "DELETE"]));
 
-const passport = require('passport');
-const connectEnsureLogin = require('connect-ensure-login');
-const session = require('express-session');
+const passport = require("passport");
+const connectEnsureLogin = require("connect-ensure-login");
+const session = require("express-session");
 const flash = require("connect-flash");
-const LocalStrategy = require('passport-local');
-const bcrypt = require('bcrypt');
+const LocalStrategy = require("passport-local");
+const bcrypt = require("bcrypt");
 
 const saltRounds = 10;
-app.set("view engine","ejs");
+app.set("view engine", "ejs");
 app.use(flash());
-app.use(session({
-  secret: "my-super-secret-key-644622414218453177816884",
-  cookie: {
-    maxAge: 24*60*60*1000 //24hrs
-  }
-}));
+app.use(
+  session({
+    secret: "my-super-secret-key-644622414218453177816884",
+    cookie: {
+      maxAge: 24 * 60 * 60 * 1000, //24hrs
+    },
+  })
+);
 
 app.use(function (request, response, next) {
   response.locals.messages = request.flash();
@@ -90,51 +92,57 @@ passport.deserializeUser((id, done) => {
     });
 });
 
-app.use(express.static(path.join( __dirname,'public')))
-
+app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/", async (request, response) => {
-    response.render('index', {
-      title : "Todo-Manager",
-      csrfToken: request.csrfToken(),
-    });
+  response.render("index", {
+    title: "Todo-Manager",
+    csrfToken: request.csrfToken(),
+  });
 });
 
-app.get("/todo", connectEnsureLogin.ensureLoggedIn(),async (request, response) => {
-  try{
-  const loggedInUser = request.user.id;
-  const userName = request.user.firstName + " " + request.user.lastName;
-  const overdue = await Todo.overdue(loggedInUser);
-  const dueToday = await Todo.dueToday(loggedInUser);
-  const dueLater = await Todo.dueLater(loggedInUser);
-  const completed = await Todo.completed(loggedInUser);
-  if (request.accepts("html")) {
-    response.render('todo', {
-      userName,
-      overdue,
-      dueToday,
-      dueLater,
-      completed,
-      title : "Todo-Manager",
-      csrfToken: request.csrfToken(),
-    });
-  } else {
-    response.json({
-      overdue,
-      dueToday,
-      dueLater,
-      completed,
-    });
-  } 
-  }catch (err) {
-    console.log(err);
-    return response.status(422).json(err);
+app.get(
+  "/todo",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    try {
+      const loggedInUser = request.user.id;
+      const userName = request.user.firstName + " " + request.user.lastName;
+      const overdue = await Todo.overdue(loggedInUser);
+      const dueToday = await Todo.dueToday(loggedInUser);
+      const dueLater = await Todo.dueLater(loggedInUser);
+      const completed = await Todo.completed(loggedInUser);
+      if (request.accepts("html")) {
+        response.render("todo", {
+          userName,
+          overdue,
+          dueToday,
+          dueLater,
+          completed,
+          title: "Todo-Manager",
+          csrfToken: request.csrfToken(),
+        });
+      } else {
+        response.json({
+          overdue,
+          dueToday,
+          dueLater,
+          completed,
+        });
+      }
+    } catch (err) {
+      console.log(err);
+      return response.status(422).json(err);
     }
-});
+  }
+);
 
 app.get("/signup", (request, response) => {
-  response.render("signup", {title: "Signup", csrfToken: request.csrfToken() })
-})
+  response.render("signup", {
+    title: "Signup",
+    csrfToken: request.csrfToken(),
+  });
+});
 
 app.get("/todos", async function (_request, response) {
   console.log("Processing list of all Todos ...");
@@ -162,7 +170,7 @@ app.get("/todos/:id", async function (request, response) {
   }
 });
 
-app.post("/users", async (request,response) => {
+app.post("/users", async (request, response) => {
   if (!request.body.firstName) {
     request.flash("error", "Enter your first name");
     return response.redirect("/signup");
@@ -205,8 +213,8 @@ app.post("/users", async (request,response) => {
 });
 
 app.get("/login", (request, response) => {
-  response.render("login", {title: "Login", csrfToken: request.csrfToken() });
-})
+  response.render("login", { title: "Login", csrfToken: request.csrfToken() });
+});
 
 app.get("/signout", (request, response, next) => {
   request.logout((err) => {
@@ -217,58 +225,79 @@ app.get("/signout", (request, response, next) => {
   });
 });
 
-app.post("/session", passport.authenticate("local", {failureRedirect:"/login"}), (request, response) => {
-  console.log(request.user);
-  response.redirect("/todo")
-})
+app.post(
+  "/session",
+  passport.authenticate("local", { failureRedirect: "/login" }),
+  (request, response) => {
+    console.log(request.user);
+    response.redirect("/todo");
+  }
+);
 
-app.post("/todos", connectEnsureLogin.ensureLoggedIn(), async function (request, response) {
-  if (request.body.title.length < 5) {
-    request.flash("error", "Minimum 5 characters required");
-    return response.redirect("/todo");
-  }
-  if (!request.body.dueDate) {
-    request.flash("error", "Due Date is required.");
-    return response.redirect("/todo");
-  }
-  try {
-    await Todo.addTodo({
-      title: request.body.title,
-      dueDate: request.body.dueDate,
-      completed: false,
-      userId: request.user.id
-    });
-    return response.redirect("/todo");
-  } catch (error) {
-    console.log(error);
-    return response.status(422).json(error);
-  }
-});
-
-app.put("/todos/:id", connectEnsureLogin.ensureLoggedIn(), async function (request, response) {
-  console.log("Mark Todo Completed:", request.params.id);
-  try {
-    const todo = await Todo.findByPk(request.params.id);
-    const updatedTodo = await todo.setCompletionStatus(request.body.completed);
-    return response.json(updatedTodo);
-  } catch (error) {
-    console.log(error);
-    return response.status(422).json(error);
-  }
-});
-
-app.delete("/todos/:id", connectEnsureLogin.ensureLoggedIn(), async function (request, response) {
-  console.log("delete a todo w/ ID:", request.params.id);
-  if (todo) {
+app.post(
+  "/todos",
+  connectEnsureLogin.ensureLoggedIn(),
+  async function (request, response) {
+    if (request.body.title.length < 5) {
+      request.flash("error", "Minimum 5 characters required");
+      return response.redirect("/todo");
+    }
+    if (!request.body.dueDate) {
+      request.flash("error", "Due Date is required.");
+      return response.redirect("/todo");
+    }
     try {
-      const todo = await Todo.findByPk(request.params.id);
-      const deletedTodo = await todo.deleteTodo(request.params.id, request.user.id);
-      return response.send(deletedTodo ? true : false);
+      await Todo.addTodo({
+        title: request.body.title,
+        dueDate: request.body.dueDate,
+        completed: false,
+        userId: request.user.id,
+      });
+      return response.redirect("/todo");
     } catch (error) {
       console.log(error);
       return response.status(422).json(error);
     }
-  } else return response.send(false);
-});
+  }
+);
+
+app.put(
+  "/todos/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async function (request, response) {
+    console.log("Mark Todo Completed:", request.params.id);
+    try {
+      const todo = await Todo.findByPk(request.params.id);
+      const updatedTodo = await todo.setCompletionStatus(
+        request.body.completed
+      );
+      return response.json(updatedTodo);
+    } catch (error) {
+      console.log(error);
+      return response.status(422).json(error);
+    }
+  }
+);
+
+app.delete(
+  "/todos/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async function (request, response) {
+    console.log("delete a todo w/ ID:", request.params.id);
+    if (todo) {
+      try {
+        const todo = await Todo.findByPk(request.params.id);
+        const deletedTodo = await todo.deleteTodo(
+          request.params.id,
+          request.user.id
+        );
+        return response.send(deletedTodo ? true : false);
+      } catch (error) {
+        console.log(error);
+        return response.status(422).json(error);
+      }
+    } else return response.send(false);
+  }
+);
 
 module.exports = app;
